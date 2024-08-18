@@ -127,7 +127,7 @@ wss.on('connection', (ws, request) =>
         }
         catch(e)
         {
-            
+            // the message wasn't valid JSON, ignore it.
             return;
         }        
 
