@@ -130,6 +130,13 @@ wss.on('connection', (ws, request) =>
             // the message wasn't valid JSON, ignore it.
             return;
         }        
+        
+        
+        if(typeof message.type === "undefined")
+        {
+            // the message is invalid, ignore it
+            return;
+        }
 
         //
         // Here we can now use session parameters.
