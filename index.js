@@ -143,6 +143,8 @@ wss.on('connection', (ws, request) =>
         //
         console.log(`Received message ${message} from user ${userId}`);
 
+        message.from = userId;
+
         sessionSockets.forEach((client, clientId) =>
         {
             console.log("From:", userId, "To:", clientId);
