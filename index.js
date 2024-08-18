@@ -148,10 +148,10 @@ wss.on('connection', (ws, request) =>
         sessionSockets.forEach((client, clientId) =>
         {
             console.log("From:", userId, "To:", clientId);
-            console.log(message.toString());
+            console.log(JSON.stringify(message));
 
             
-            client.send(message.toString());
+            client.send(JSON.stringify(message));
         });
     });
 
