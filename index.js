@@ -168,6 +168,7 @@ setInterval(() =>
     {
         client.send(JSON.stringify({
             type: "keep-alive",
+            from: "server"
         }));
     });
 }, 30000);
