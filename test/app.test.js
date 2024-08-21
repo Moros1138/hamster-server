@@ -152,21 +152,11 @@ describe("ENDPOINT /session", () =>
         });
     });
 });
+
 describe("ENDPOINT /race - cookie not set", () =>
 {
     describe("POST /race", () =>
     {
-        it("should respond with code 401", (done) =>
-        {
-            const test = request(app).post("/race");
-            
-            test.expect(401)
-                .end((err, res) =>
-                {
-                    done(err);
-                });
-        });
-
         it("should respond with json", (done) =>
         {
             const test = request(app).post("/race");
@@ -178,6 +168,17 @@ describe("ENDPOINT /race - cookie not set", () =>
                 });
         });
     
+        it("should respond with code 401", (done) =>
+        {
+            const test = request(app).post("/race");
+            
+            test.expect(401)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
         it("should respond with `unauthorized` in body", (done) =>
         {
             const test = request(app).post("/race");
@@ -191,6 +192,77 @@ describe("ENDPOINT /race - cookie not set", () =>
     });
     
 
+    describe("PATCH /race", () =>
+    {
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).patch("/race");
+            
+            test.expect("Content-Type", /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+        it("should respond with code 401", (done) =>
+        {
+            const test = request(app).patch("/race");
+            
+            test.expect(401)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
+        it("should respond with `unauthorized` in body", (done) =>
+        {
+            const test = request(app).patch("/race");
+            
+            test.expect(/unauthorized/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    });
+    
+    describe("DELETE /race", () =>
+    {
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).delete("/race");
+            
+            test.expect("Content-Type", /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
+        it("should respond with code 401", (done) =>
+        {
+            const test = request(app).delete("/race");
+            
+            test.expect(401)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+        it("should respond with `unauthorized` in body", (done) =>
+        {
+            const test = request(app).delete("/race");
+            
+            test.expect(/unauthorized/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    });
 });
 
 
@@ -198,19 +270,6 @@ describe("ENDPOINT /race - with cookie set", () =>
 {
     describe("POST /race", () =>
     {
-        it("should respond with code 200", (done) =>
-        {
-            const test = request(app).post("/race");
-            
-            test.cookies = sessionCookie;
-            
-            test.expect(200)
-                .end((err, res) =>
-                {
-                    done(err);
-                });
-        });
-
         it("should respond with json", (done) =>
         {
             const test = request(app).post("/race");
@@ -224,6 +283,19 @@ describe("ENDPOINT /race - with cookie set", () =>
                 });
         });
     
+        it("should respond with code 200", (done) =>
+        {
+            const test = request(app).post("/race");
+            
+            test.cookies = sessionCookie;
+            
+            test.expect(200)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
         it("should respond with `race started` in body", (done) =>
         {
             const test = request(app).post("/race");
@@ -238,6 +310,124 @@ describe("ENDPOINT /race - with cookie set", () =>
                 });
         });
     });
+
+    describe("PATCH /race - missing parameters", () =>
+    {
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).patch("/race");
+            
+            test.cookies = sessionCookie;
+
+            test.expect("Content-Type", /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+        it("should respond with code 400", (done) =>
+        {
+            const test = request(app).patch("/race");
+            
+            test.cookies = sessionCookie;
+
+            test.expect(400)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+        
+        it("should respond with `required parameter (raceId) missing`", (done) =>
+        {
+            const test = request(app).patch("/race");
+            
+            test.cookies = sessionCookie;
+
+            test.expect(/required parameter \(raceId\) missing/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+        it("should respond with `required parameter (raceTime) missing`", (done) =>
+        {
+            const test = request(app).patch("/race");
+            
+            test.cookies = sessionCookie;
+            
+            test.send({ raceId: "totally-invalid-but-who-cares" })
+            test.expect(/required parameter \(raceTime\) missing/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
+    }); // PATCH /race - missing parameters
+
+
+    describe("PATCH /race - with parameters", () =>
+    {
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).patch("/race");
+            
+            test.cookies = sessionCookie;
+
+            test.expect("Content-Type", /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+
+        it("should respond with code 200", (done) =>
+        {
+            const test = request(app).patch("/race");
+            
+            test.cookies = sessionCookie;
+            
+            test.send({ raceId, raceTime: 50 })
+                .expect(200)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+        
+        it("should accept times 1000ms difference", (done) =>
+        {
+            const test = request(app).patch("/race");
+            
+            test.cookies = sessionCookie;
+            
+            test.send({ raceId, raceTime: 1000 })
+                .expect(200)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+        it("should accept times 1000ms difference", (done) =>
+        {
+            const test = request(app).patch("/race");
+            
+            test.cookies = sessionCookie;
+            
+            test.send({ raceId, raceTime: 1000 })
+                .expect(200)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+    }); // PATCH /race - with parameters
 
 }); // ENDPOINT /race - with cookie set
 
