@@ -4,8 +4,19 @@ import { Filter } from 'bad-words';
 
 const filter = new Filter();
 
-export default function defineApi(app)
+export default function defineApi(app, races)
 {
+    if(app === undefined)
+    {
+        throw new Error("express app is required!");
+    }
+    
+    if(races === undefined)
+    {
+        throw new Error("races database is required!")
+    }
+    
+    
     app.get("/session", (request, response) =>
     {
         if(request.session.userId)
