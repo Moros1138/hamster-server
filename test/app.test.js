@@ -4,9 +4,20 @@ import defineApi from "../app.js";
 import express from "express";
 import session from 'express-session';
 import request from "supertest";
+import Database from 'better-sqlite3';
 
 const sessionName     = process.env.SESSION_NAME   || "test_sessionid";
 const sessionSecret   = process.env.SESSION_SECRET || "$eCuRiTy";
+
+const races = new Database(":memory:", { verbose: console.log });
+
+races.exec(`CREATE TABLE IF NOT EXISTS 'races' (
+    'id' INTEGER PRIMARY KEY AUTOINCREMENT,
+    'color' TEXT,
+    'name' TEXT,
+    'map' TEXT,
+    'time' INTEGER
+)`);
 
 const app = express();
 
@@ -19,7 +30,7 @@ app.use(session({
     resave: false,
 }));
 
-defineApi(app);
+defineApi(app, races);
 
 let sessionCookie = null;
 
