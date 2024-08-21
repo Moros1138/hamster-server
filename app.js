@@ -68,6 +68,20 @@ export default function defineApi(app, races)
             });
     });
         
+    app.delete('/session', (request, response) =>
+    {
+        console.log('Destroying session');
+        request.session.destroy(() =>
+        {
+            response
+                .set("Content-Type", "application/json")
+                .status(200)
+                .send({
+                    result: 'ok',
+                    message: 'session destroyed'
+                });
+        });
+    });
 }
 
 
