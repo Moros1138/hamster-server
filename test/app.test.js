@@ -60,6 +60,44 @@ describe("ENDPOINT /session", () =>
                 });
         });
     });
+    
+    describe("POST /session", () =>
+    {
+        it("should respond with code 200", (done) =>
+        {
+            const test = request(app).post("/session");
+
+            test.expect(200)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+        
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).post("/session");
+
+            test.expect('Content-Type', /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+        
+        it("should set cookie", (done) =>
+        {
+            const test = request(app).post("/session");
+
+            test.expect("set-cookie", /sessionid/)
+                .end((err, res) =>
+                {
+                    sessionCookie = res.headers['set-cookie'].pop().split(';')[0];
+                    done(err);
+                });
+        });
+    });
+    
     describe("GET /session - with cookie set", () =>
     {
         it("should respond with code 200", (done) =>

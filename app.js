@@ -29,6 +29,34 @@ export default function defineApi(app)
                 message: "session not found"
             });
     });
+
+    app.post("/session", (request, response) =>
+    {
+        if(request.session.userId)
+        {
+            response
+                .set("Content-Type", "application/json")
+                .status(200)
+                .send({
+                    result: "ok",
+                    message: "session exists"
+                })        
+    
+            return;
+        }
+        
+        request.session.userId = uuid4();
+        // console.log(`Creating session for user ${request.session.userId}`);
+    
+        response
+            .set("Content-Type", "application/json")
+            .status(200)
+            .send({
+                result: 'ok',
+                message: 'session created'
+            });
+    });
+        
 }
 
 
