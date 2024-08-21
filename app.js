@@ -82,6 +82,34 @@ export default function defineApi(app, races)
                 });
         });
     });
+    app.post('/race', (request, response) =>
+    {
+        if(!request.session.userId)
+        {
+            response
+                .set("Content-Type", "application/json")
+                .status(401)
+                .send({
+                    result: 'fail',
+                    message: 'unauthorized'
+                });
+    
+            return;
+        }
+        
+        request.session.raceId = uuid4();
+        request.session.raceStartTime = new Date().getUTCMilliseconds();
+        request.session.raceEndTime = 0;
+
+        response
+            .set("Content-Type", "application/json")
+            .status(200)
+            .send({
+                result: "ok",
+                message: "race started",
+                raceId: request.session.raceId,
+            });
+    });
 }
 
 

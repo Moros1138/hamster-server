@@ -33,6 +33,7 @@ app.use(session({
 defineApi(app, races);
 
 let sessionCookie = null;
+let raceId        = null;
 
 describe("ENDPOINT /session", () =>
 {
@@ -151,3 +152,92 @@ describe("ENDPOINT /session", () =>
         });
     });
 });
+describe("ENDPOINT /race - cookie not set", () =>
+{
+    describe("POST /race", () =>
+    {
+        it("should respond with code 401", (done) =>
+        {
+            const test = request(app).post("/race");
+            
+            test.expect(401)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).post("/race");
+            
+            test.expect("Content-Type", /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+        it("should respond with `unauthorized` in body", (done) =>
+        {
+            const test = request(app).post("/race");
+            
+            test.expect(/unauthorized/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    });
+    
+
+});
+
+
+describe("ENDPOINT /race - with cookie set", () =>
+{
+    describe("POST /race", () =>
+    {
+        it("should respond with code 200", (done) =>
+        {
+            const test = request(app).post("/race");
+            
+            test.cookies = sessionCookie;
+            
+            test.expect(200)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).post("/race");
+            
+            test.cookies = sessionCookie;
+
+            test.expect("Content-Type", /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+        it("should respond with `race started` in body", (done) =>
+        {
+            const test = request(app).post("/race");
+            
+            test.cookies = sessionCookie;
+
+            test.expect(/race started/)
+                .end((err, res) =>
+                {
+                    raceId = res.body.raceId;
+                    done(err);
+                });
+        });
+    });
+
+}); // ENDPOINT /race - with cookie set
+
