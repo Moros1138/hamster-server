@@ -23,3 +23,82 @@ defineApi(app);
 
 let sessionCookie = null;
 
+describe("ENDPOINT /session", () =>
+{
+    describe("GET /session - cookie not set", () =>
+    {
+        it("should respond with code 404", (done) =>
+        {
+            const test = request(app).get("/session");
+            
+            test.expect(404)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).get("/session");
+            
+            test.expect("Content-Type", /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+        it("should respond with `session not found` in body", (done) =>
+        {
+            const test = request(app).get("/session");
+            
+            test.expect(/session not found/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    });
+    describe("GET /session - with cookie set", () =>
+    {
+        it("should respond with code 200", (done) =>
+        {
+            const test = request(app).get("/session");
+            
+            test.cookies = sessionCookie;
+            
+            test.expect(200)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).get("/session");
+            
+            test.cookies = sessionCookie;
+
+            test.expect("Content-Type", /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+        it("should respond with `session exists` in body", (done) =>
+        {
+            const test = request(app).get("/session");
+            
+            test.cookies = sessionCookie;
+
+            test.expect(/session exists/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    });
+});
