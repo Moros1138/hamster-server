@@ -4,6 +4,24 @@ import { Filter } from 'bad-words';
 
 const filter = new Filter();
 
+
+
+
+function ExtractMissingParameters(requiredParams, request)
+{
+    let missing = [];
+
+    requiredParams.forEach((required) =>
+    {
+        if(!request.body[required])
+        {
+            missing.push(required);
+        }
+    });
+
+    return missing;
+}
+
 export default function defineApi(app, races)
 {
     if(app === undefined)
@@ -125,32 +143,29 @@ export default function defineApi(app, races)
             return;
         }
         
-        const requiredParams = [
-            "raceId", "raceTime", "raceMap", "raceColor",
-        ];
-        
-        let missing = [];
+        let missingParameters = ExtractMissingParameters([
+            "raceId",
+            "raceTime",
+            "raceMap",
+            "raceColor",
+        ], request);
 
-        requiredParams.forEach((required) =>
-        {
-            if(!request.body[required])
-            {
-                missing.push(required);
-            }
-        });
-
-        if(missing.length > 0)
+        if(missingParameters.length > 0)
         {
             response.status(400)
-                .set("Content-Type", "application/json")
-                .send({
-                    result: "fail",
-                    message: `required parameter (${missing.join()}) missing`,
-                });
+                    .set("Content-Type", "application/json")
+                    .send({
+                        result: "fail",
+                        message: `required parameter (${missingParameters.join()}) missing`,
+                    });
+
+            return;
+        }
+        {
             
             return;
         }
-    
+
         // race time reported by the client
         const clientTime = parseInt(request.body.raceTime);
         
@@ -176,9 +191,6 @@ export default function defineApi(app, races)
             return;
         }
 
-        // TODO: update race table
-        console.log("ACTUALLY FINISHED A RACE!");
-        
         const insertRace = races.prepare("INSERT INTO `races` (`color`, `name`, `map`, `time`) VALUES (@color, @name, @map, @time)");
         
         insertRace.run({
