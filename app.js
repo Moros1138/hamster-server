@@ -106,6 +106,63 @@ export default function defineApi(app, races)
                 });
         });
     });
+        
+    app.post('/name', (request, response) =>
+    {
+        if(!request.session.userId)
+        {
+            response
+                .set("Content-Type", "application/json")
+                .status(401)
+                .send({
+                    result: 'fail',
+                    message: 'unauthorized'
+                });
+    
+            return;
+        }
+
+        let missingParameters = ExtractMissingParameters([
+            "userName"
+        ], request);
+
+        if(missingParameters.length > 0)
+        {
+            response
+                .set("Content-Type", "application/json")
+                .status(400)
+                .send({
+                    result: 'fail',
+                    message: `required parameter (${missingParameters.join()}) missing`,
+                });
+            return;
+        }
+    
+        if(matcher.hasMatch(request.body.userName))
+        {
+            response
+                .set("Content-Type", "application/json")
+                .status(406)
+                .send({
+                    result: 'fail',
+                    message: 'the provided name contains profanity',
+                });
+            
+            return;
+        }
+        
+        request.session.userName = request.body.userName;
+        
+        response
+            .set("Content-Type", "application/json")
+            .status(200)
+            .send({
+                result: 'ok',
+                message: 'name is set',
+            });
+    
+    });
+        
     app.post('/race', (request, response) =>
     {
         if(!request.session.userId)

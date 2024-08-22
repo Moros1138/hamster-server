@@ -527,3 +527,96 @@ describe("ENDPOINT /race - with cookie set", () =>
 
 }); // ENDPOINT /race - with cookie set
 
+describe("ENDPOINT /name - cookie not set", () =>
+{
+    it("should respond with json", (done) =>
+    {
+        const test = request(app).post("/name");
+        
+        test.expect("Content-Type", /json/)
+            .end((err, res) =>
+            {
+                done(err);
+            });
+    });
+
+    it("should respond with code 401", (done) =>
+    {
+        const test = request(app).post("/name");
+        
+        test.expect(401)
+            .end((err, res) =>
+            {
+                done(err);
+            });
+    });
+
+    it("should respond with `unauthorized` in body", (done) =>
+    {
+        const test = request(app).post("/name");
+        
+        test.expect(/unauthorized/)
+            .end((err, res) =>
+            {
+                done(err);
+            });
+    });
+});
+
+describe("ENDPOINT /name - with cookie set", () =>
+{
+    it("should respond with json", (done) =>
+    {
+        const test = request(app).post("/name");
+        
+        test.cookies = sessionCookie;
+
+        test.expect("Content-Type", /json/)
+            .end((err, res) =>
+            {
+                done(err);
+            });
+    });
+
+    it("should respond with `required parameter (.*) missing`", (done) =>
+    {
+        const test = request(app).post("/name");
+        
+        test.cookies = sessionCookie;
+        
+        test.expect(/required parameter (.*) missing/)
+            .end((err, res) =>
+            {
+                done(err);
+            });
+    });
+
+    it("should set name to `Javidx9`", (done) =>
+    {
+        const test = request(app).post("/name");
+        
+        test.cookies = sessionCookie;
+        
+        test.send({ userName: "Javidx9" })
+            .expect(200)
+            .expect(/name is set/)
+            .end((err, res) =>
+            {
+                done(err);
+            });
+    });
+    
+    it("should reject bad words for name", (done) =>
+    {
+        const test = request(app).post("/name");
+        
+        test.cookies = sessionCookie;
+        
+        test.send({ userName: "DirtySlut69" })
+            .expect(406)
+            .end((err, res) =>
+            {
+                done(err);
+            });
+    });
+}); // ENDPOINT /name - with cookie set
