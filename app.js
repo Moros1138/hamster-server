@@ -162,7 +162,88 @@ export default function defineApi(app, races)
             });
     
     });
+
+    app.get('/race', (request, response) =>
+    {
+        const params = {
+            sort: "ASC",
+            map: "",
+            offset: 0,
+            limit: 10,
+            sortBy: "id"
+        };
         
+        if(request.query.sort)
+        {
+            if(request.query.sort.toLowerCase() == "asc")
+            {
+                params.sort = "ASC";
+            }
+            
+            if(request.query.sort.toLowerCase() == "desc")
+            {
+                params.sort = "DESC";
+            }
+        }
+
+        if(request.query.map)
+        {
+            params.map = request.query.map;
+        }
+
+        if(request.query.offset)
+        {
+            params.offset = parseInt(request.query.offset);
+        }
+
+        if(request.query.limit)
+        {
+            params.limit = parseInt(request.query.limit);
+        }
+
+        if(request.query.sortBy)
+        {
+            if(['id', 'color', 'map', 'time', 'created_at'].indexOf(request.query.sortBy) !== -1)
+            {
+                params.sortBy = request.query.sortBy;
+            }
+        }
+
+        let results = null;
+        try
+        {
+            const stmt = races.prepare(`
+                SELECT * FROM races
+                WHERE map = ?
+                ORDER BY ${params.sortBy} ${params.sort}
+                LIMIT ? OFFSET ?;
+            `);
+        
+            results = stmt.all(params.map, params.limit, params.offset);
+
+        }
+        catch(e)
+        {
+            response.status(200)
+            .set("Content-Type", "application/json")
+            .send({
+                result: "fail",
+                params: params,
+                message: "server error. contact admin"
+            });
+
+            return;
+        }
+
+        response.status(200)
+            .set("Content-Type", "application/json")
+            .send({
+                result: "ok",
+                params: params,
+                results: results
+            });
+    });
+
     app.post('/race', (request, response) =>
     {
         if(!request.session.userId)

@@ -4,13 +4,13 @@ import defineApi from "../app.js";
 import express from "express";
 import session from 'express-session';
 import request from "supertest";
+
 import Database from 'better-sqlite3';
 
 const sessionName     = process.env.SESSION_NAME   || "test_sessionid";
 const sessionSecret   = process.env.SESSION_SECRET || "$eCuRiTy";
 
-// const races = new Database(":memory:", { verbose: console.log });
-const races = new Database("tests.db"); //, { verbose: console.log });
+const races = new Database(":memory:");
 
 races.exec(`CREATE TABLE IF NOT EXISTS 'races' (
     'id' INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,6 +36,16 @@ defineApi(app, races);
 
 let sessionCookie = null;
 let raceId        = null;
+
+function isSortedAscending(arr) {
+    const sortedArray = [...arr].sort((a, b) => a - b);
+    return arr.every((value, index) => value === sortedArray[index]);
+}
+
+function isSortedDescending(arr) {
+    const sortedArray = [...arr].sort((a, b) => b - a);
+    return arr.every((value, index) => value === sortedArray[index]);
+}
 
 describe("ENDPOINT /session", () =>
 {
@@ -627,3 +637,254 @@ describe("ENDPOINT /name - with cookie set", () =>
         });
     });
 }); // ENDPOINT /name - with cookie set
+
+describe("GET /race", () =>
+{
+    before(function()
+    {
+        const racesToInsert = [];
+        const colors = ["white", "black", "blue", "green", "red", "yellow", "orange"];
+
+        for(let i = 0; i < 50; i++)
+        {
+            racesToInsert.push({
+                color: colors[Math.floor(Math.random() * colors.length)],
+                name: `Entry${i+1}`,
+                map: "map1",
+                time: (i + 1)
+            });
+        }
+        
+        racesToInsert.sort(() => Math.random() - 0.5);
+
+        let stmt = races.prepare("INSERT INTO `races` (`color`, `name`, `map`, `time`) VALUES (@color, @name, @map, @time);");
+        
+        racesToInsert.forEach((race) =>
+        {
+            stmt.run(race);
+        });
+    });
+
+    after(function()
+    {
+        races.exec("DELETE FROM races");
+    });
+
+    it("should respond with json", (done) =>
+    {
+        const test = request(app).post("/race");
+        
+        test.expect("Content-Type", /json/)
+            .end((err, res) =>
+            {
+                done(err);
+            });
+    });
+
+    it("should respond with 10 results on a default call", (done) =>
+    {
+        const test = request(app).get("/race?map=map1");
+        
+        test.expect(200)
+            .end((err, res) =>
+            {
+                if(err)
+                {
+                    done(err);
+                    return;
+                }
+
+                if(res.body.results.length != 10)
+                {
+                    done(new Error(`expected 10 results but got ${res.body.results.length}`));
+                    return;
+                }
+                
+                done();
+            })
+    });
+
+    it("should respond with 0 results when a map does not exist", (done) =>
+    {
+        const test = request(app).get("/race?map=map-not-exist");
+        
+        test.expect(200)
+            .end((err, res) =>
+            {
+                if(err)
+                {
+                    done(err);
+                    return;
+                }
+
+                if(res.body.results.length != 0)
+                {
+                    done(new Error(`expected 0 results but got ${res.body.results.length}`));
+                    return;
+                }
+                
+                done();
+                // console.log(res.body.params);
+                // let out = [];
+                // res.body.results.forEach((result) => out.push(result.time));
+                // console.log(out);
+                // done(err);
+            })
+    });
+    
+    it("should respond with 10 results sorted by `time` in ascending order", (done) =>
+    {
+        const test = request(app).get("/race?map=map1&sortBy=time&sort=ASC");
+        
+        test.expect(200)
+            .end((err, res) =>
+            {
+                if(err)
+                {
+                    done(err);
+                    return;
+                }
+
+                if(res.body.results.length != 10)
+                {
+                    done(new Error(`expected 10 results but got ${res.body.results.length}`));
+                    return;
+                }
+                
+                let out = [];
+                res.body.results.forEach((result) => out.push(result.time));
+                
+                if(!isSortedAscending(out))
+                {
+                    done(new Error(`expected 10 results ordered by time, in ascending order but got ${out.toString()}`));
+                    return;
+                }
+
+                done();
+            })
+    });
+    
+    it("should respond with 10 results sorted by `time` in descending order", (done) =>
+    {
+        const test = request(app).get("/race?map=map1&sortBy=time&sort=DESC");
+        
+        test.expect(200)
+            .end((err, res) =>
+            {
+                if(err)
+                {
+                    done(err);
+                    return;
+                }
+
+                if(res.body.results.length != 10)
+                {
+                    done(new Error(`expected 10 results but got ${res.body.results.length}`));
+                    return;
+                }
+                
+                let out = [];
+                res.body.results.forEach((result) => out.push(result.time));
+                
+                if(!isSortedDescending(out))
+                {
+                    done(new Error(`expected 10 results ordered by time, in descending order but got ${out.toString()}`));
+                    return;
+                }
+
+                done();
+            })
+    });
+    
+    it("should respond with 5 results when limit is set to 5", (done) =>
+    {
+        const test = request(app).get("/race?map=map1&limit=5");
+        
+        test.expect(200)
+            .end((err, res) =>
+            {
+                if(err)
+                {
+                    done(err);
+                    return;
+                }
+
+                if(res.body.results.length != 5)
+                {
+                    done(new Error(`expected 10 results but got ${res.body.results.length}`));
+                    return;
+                }
+                
+                done();
+            })
+    });
+
+    it("should respond with 1 result offset by 0", (done) =>
+    {
+        request(app).get("/race?map=map1&limit=10&offset=0").end((err, res) =>
+        {
+            const baselineResults = res.body.results;
+
+            const test = request(app).get("/race?map=map1&limit=1&offset=0");
+        
+            test.expect(200)
+                .end((err, res) =>
+                {
+                    if(err)
+                    {
+                        done(err);
+                        return;
+                    }
+    
+                    if(res.body.results.length != 1)
+                    {
+                        done(new Error(`expected 1 result but got ${res.body.results.length}`));
+                        return;
+                    }
+
+                    if(res.body.results[0].id != baselineResults[0].id)
+                    {
+                        done(new Error(`expected ${res.body.results[0].id} and ${baselineResults[4].id} to match.`));
+                        return;
+                    }
+
+                    done();
+                })
+        });
+
+    });
+    
+    it("should respond with 1 result offset by 5", (done) =>
+    {
+        request(app).get("/race?map=map1&limit=10&offset=0").end((err, res) =>
+        {
+            const baselineResults = res.body.results;
+
+            const test = request(app).get("/race?map=map1&limit=1&offset=5");
+        
+            test.expect(200)
+                .end((err, res) =>
+                {
+                    if(err)
+                    {
+                        done(err);
+                        return;
+                    }
+    
+                    if(res.body.results.length != 1)
+                    {
+                        done(new Error(`expected 1 result but got ${res.body.results.length}`));
+                        return;
+                    }
+
+                    if(res.body.results[0].id != baselineResults[5].id)
+                    {
+                        done(new Error(`expected ${res.body.results[0].id} and ${baselineResults[5].id} to match.`));
+                        return;
+                    }
+
+                    done();
+                })
+        });
+    });
+}); // GET /race
