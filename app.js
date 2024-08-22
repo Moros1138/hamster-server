@@ -161,7 +161,15 @@ export default function defineApi(app, races)
 
             return;
         }
+        
+        if(request.session.raceId != request.body.raceId)
         {
+            response.status(404)
+                    .set("Content-Type", "application/json")
+                    .send({
+                        result: "fail",
+                        message: "raceId not found"
+                    });
             
             return;
         }
