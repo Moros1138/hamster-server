@@ -178,7 +178,16 @@ export default function defineApi(app, races)
 
         // TODO: update race table
         console.log("ACTUALLY FINISHED A RACE!");
-
+        
+        const insertRace = races.prepare("INSERT INTO `races` (`color`, `name`, `map`, `time`) VALUES (@color, @name, @map, @time)");
+        
+        insertRace.run({
+            color: request.body.raceColor,
+            name: request.session.userName,
+            map: request.body.raceMap,
+            time: request.body.raceTime
+        });
+        
         response.status(200)
             .set("Content-Type", "application/json")
             .send({
