@@ -215,6 +215,61 @@ export default function defineApi(app, races)
                 message: "race updated"
             });
     });
+
+    app.delete('/race', (request, response) =>
+    {
+        if(!request.session.userId)
+        {
+            response.status(401)
+                .set("Content-Type", "application/json")
+                .send({
+                    result: 'fail',
+                    message: 'unauthorized'
+                });
+    
+            return;
+        }
+        
+        let missingParameters = ExtractMissingParameters([
+            "raceId",
+        ], request);
+
+        if(missingParameters.length > 0)
+        {
+            response.status(400)
+                    .set("Content-Type", "application/json")
+                    .send({
+                        result: "fail",
+                        message: `required parameter (${missingParameters.join()}) missing`,
+                    });
+
+            return;
+        }
+
+        if(request.session.raceId != request.body.raceId)
+        {
+            response.status(404)
+                    .set("Content-Type", "application/json")
+                    .send({
+                        result: "fail",
+                        message: "raceId not found"
+                    });
+            
+            return;
+        }
+
+        request.session.raceId = null;
+        request.session.raceEndTime = 0;
+        request.session.raceStartTime = 0;
+
+        response.status(200)
+            .set("Content-Type", "application/json")
+            .send({
+                result: "ok",
+                message: "race interrupted"
+            });
+    });
+
 }
 
 

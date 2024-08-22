@@ -442,5 +442,87 @@ describe("ENDPOINT /race - with cookie set", () =>
     
     }); // PATCH /race - with parameters
 
+    describe("DELETE /race - missing parameters", () =>
+    {
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).delete("/race");
+            
+            test.cookies = sessionCookie;
+
+            test.expect("Content-Type", /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
+        it("should respond with `required parameter (.*) missing`", (done) =>
+        {
+            const test = request(app).delete("/race");
+            
+            test.cookies = sessionCookie;
+            
+            test.expect(/required parameter (.*) missing/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
+    });
+
+    describe("DELETE /race - with parameters", () =>
+    {
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).delete("/race");
+            
+            test.cookies = sessionCookie;
+
+            test.expect("Content-Type", /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
+        it("should respond with code 404 when raceId mismatch", (done) =>
+        {
+            const test = request(app).delete("/race");
+            
+            test.cookies = sessionCookie;
+            
+            test.send({ raceId: "totally-does-not-exist" })
+                .expect(404)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+        
+        it("should respond with code 200", (done) =>
+        {
+            const getRaceTime = request(app).post("/race");
+            getRaceTime.cookies = sessionCookie;
+            getRaceTime.end((err, req) =>
+            {
+                raceId = req.body.raceId;
+
+                const test = request(app).delete("/race");
+            
+                test.cookies = sessionCookie;
+            
+                test.send({ raceId: raceId })
+                    .expect(200)
+                    .end((err, res) =>
+                    {
+                        done(err);
+                    });
+            });
+        });
+    });
+
+
 }); // ENDPOINT /race - with cookie set
 
