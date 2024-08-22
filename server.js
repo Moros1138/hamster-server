@@ -25,7 +25,8 @@ races.exec(`CREATE TABLE IF NOT EXISTS 'races' (
     'color' TEXT,
     'name' TEXT,
     'map' TEXT,
-    'time' INTEGER
+    'time' INTEGER,
+    'created_at' DATETIME DEFAULT CURRENT_TIMESTAMP
 )`);
 
 app.use(express.static(publicDirectory));

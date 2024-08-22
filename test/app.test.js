@@ -9,14 +9,16 @@ import Database from 'better-sqlite3';
 const sessionName     = process.env.SESSION_NAME   || "test_sessionid";
 const sessionSecret   = process.env.SESSION_SECRET || "$eCuRiTy";
 
-const races = new Database(":memory:", { verbose: console.log });
+// const races = new Database(":memory:", { verbose: console.log });
+const races = new Database("tests.db", { verbose: console.log });
 
 races.exec(`CREATE TABLE IF NOT EXISTS 'races' (
     'id' INTEGER PRIMARY KEY AUTOINCREMENT,
     'color' TEXT,
     'name' TEXT,
     'map' TEXT,
-    'time' INTEGER
+    'time' INTEGER,
+    'created_at' TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )`);
 
 const app = express();
