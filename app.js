@@ -10,7 +10,7 @@ export default function defineApi(app, races)
     {
         throw new Error("express app is required!");
     }
-    
+
     if(races === undefined)
     {
         throw new Error("races database is required!")
@@ -57,8 +57,8 @@ export default function defineApi(app, races)
         }
         
         request.session.userId = uuid4();
-        // console.log(`Creating session for user ${request.session.userId}`);
-    
+        request.session.userName = `Guest_${Math.random().toString(36).substring(7)}`;
+
         response
             .set("Content-Type", "application/json")
             .status(200)
