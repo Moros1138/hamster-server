@@ -3,6 +3,7 @@ import 'dotenv/config';
 import defineApi from "./app.js";
 
 import express from 'express';
+import morgan from 'morgan';
 
 const port            = process.env.PORT || "8000";
 const publicDirectory = process.env.PUBLIC_DIRECTORY || "public";
@@ -28,6 +29,8 @@ races.exec(`CREATE TABLE IF NOT EXISTS 'races' (
     'time' INTEGER,
     'created_at' TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )`);
+
+app.use(morgan("tiny"));
 
 app.use(express.static(publicDirectory));
 
