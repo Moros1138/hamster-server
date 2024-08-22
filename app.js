@@ -343,14 +343,28 @@ export default function defineApi(app, races)
             return;
         }
 
-        const insertRace = races.prepare("INSERT INTO `races` (`color`, `name`, `map`, `time`) VALUES (@color, @name, @map, @time)");
+        try
+        {
+            const insertRace = races.prepare("INSERT INTO `races` (`color`, `name`, `map`, `time`) VALUES (@color, @name, @map, @time);");
         
-        insertRace.run({
-            color: request.body.raceColor,
-            name: request.session.userName,
-            map: request.body.raceMap,
-            time: request.body.raceTime
-        });
+            insertRace.run({
+                color: request.body.raceColor,
+                name: request.session.userName,
+                map: request.body.raceMap,
+                time: request.body.raceTime,
+            });
+        }
+        catch(e)
+        {
+            response.status(500)
+                .set("Content-Type", "application/json")
+                .send({
+                    result: "fail",
+                    message: "server error. contact admin",
+                });
+            
+            return;
+        }
         
         response.status(200)
             .set("Content-Type", "application/json")
