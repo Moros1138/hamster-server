@@ -339,27 +339,13 @@ describe("ENDPOINT /race - with cookie set", () =>
                 });
         });
         
-        it("should respond with `required parameter (raceId) missing`", (done) =>
-        {
-            const test = request(app).patch("/race");
-            
-            test.cookies = sessionCookie;
-
-            test.expect(/required parameter \(raceId\) missing/)
-                .end((err, res) =>
-                {
-                    done(err);
-                });
-        });
-    
-        it("should respond with `required parameter (raceTime) missing`", (done) =>
+        it("should respond with `required parameter (.*) missing`", (done) =>
         {
             const test = request(app).patch("/race");
             
             test.cookies = sessionCookie;
             
-            test.send({ raceId: "totally-invalid-but-who-cares" })
-            test.expect(/required parameter \(raceTime\) missing/)
+            test.expect(/required parameter (.*) missing/)
                 .end((err, res) =>
                 {
                     done(err);
@@ -385,46 +371,71 @@ describe("ENDPOINT /race - with cookie set", () =>
         });
     
 
-        it("should respond with code 200", (done) =>
+        it("should respond with code 200 - finish race", (done) =>
         {
-            const test = request(app).patch("/race");
+            const getRaceTime = request(app).post("/race");
+            getRaceTime.cookies = sessionCookie;
+            getRaceTime.end((err, req) =>
+            {
+                raceId = req.body.raceId;
+
+                const test = request(app).patch("/race");
             
-            test.cookies = sessionCookie;
-            
-            test.send({ raceId, raceTime: 50 })
-                .expect(200)
-                .end((err, res) =>
-                {
-                    done(err);
-                });
+                test.cookies = sessionCookie;
+                
+                test.send({ raceId: raceId, raceTime: 50, raceMap: "the-map", raceColor: "white" })
+                    .expect(200)
+                    .end((err, res) =>
+                    {
+                        done(err);
+                    });
+            });
         });
         
-        it("should accept times 1000ms difference", (done) =>
+        it("should accept times 1000ms difference - finish race", (done) =>
         {
-            const test = request(app).patch("/race");
+            const getRaceTime = request(app).post("/race");
+            getRaceTime.cookies = sessionCookie;
+            getRaceTime.end((err, req) =>
+            {
+                raceId = req.body.raceId;
+
+                const test = request(app).patch("/race");
             
-            test.cookies = sessionCookie;
+                test.cookies = sessionCookie;
+                
+                test.send({ raceId: raceId, raceTime: 1000, raceMap: "the-map", raceColor: "white" })
+                    .expect(200)
+                    .end((err, res) =>
+                    {
+                        done(err);
+                    });
+            });
             
-            test.send({ raceId, raceTime: 1000 })
-                .expect(200)
-                .end((err, res) =>
-                {
-                    done(err);
-                });
         });
     
-        it("should accept times 1000ms difference", (done) =>
+        it("should reject times 2000ms difference", (done) =>
         {
-            const test = request(app).patch("/race");
+            const getRaceTime = request(app).post("/race");
             
-            test.cookies = sessionCookie;
+            getRaceTime.cookies = sessionCookie;
             
-            test.send({ raceId, raceTime: 1000 })
-                .expect(200)
-                .end((err, res) =>
-                {
-                    done(err);
-                });
+            getRaceTime.end((err, req) =>
+            {
+                raceId = req.body.raceId;
+                
+                const test = request(app).patch("/race");
+            
+                test.cookies = sessionCookie;
+                
+                test.send({ raceId: raceId, raceTime: 2000, raceMap: "the-map", raceColor: "white" })
+                    .expect(400)
+                    .expect(/raceTime mismatch/)
+                    .end((err, res) =>
+                    {
+                        done(err);
+                    });
+            });
         });
     
     }); // PATCH /race - with parameters

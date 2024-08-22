@@ -110,6 +110,82 @@ export default function defineApi(app, races)
                 raceId: request.session.raceId,
             });
     });
+
+    app.patch("/race", (request, response) =>
+    {
+        if(!request.session.userId)
+        {
+            response.status(401)
+                .set("Content-Type", "application/json")
+                .send({
+                    result: 'fail',
+                    message: 'unauthorized'
+                });
+    
+            return;
+        }
+        
+        const requiredParams = [
+            "raceId", "raceTime", "raceMap", "raceColor",
+        ];
+        
+        let missing = [];
+
+        requiredParams.forEach((required) =>
+        {
+            if(!request.body[required])
+            {
+                missing.push(required);
+            }
+        });
+
+        if(missing.length > 0)
+        {
+            response.status(400)
+                .set("Content-Type", "application/json")
+                .send({
+                    result: "fail",
+                    message: `required parameter (${missing.join()}) missing`,
+                });
+            
+            return;
+        }
+    
+        // race time reported by the client
+        const clientTime = parseInt(request.body.raceTime);
+        
+        // end time
+        request.session.raceEndTime = new Date().getUTCMilliseconds();
+        
+        // race time calculated by the server 
+        const serverTime = request.session.raceEndTime - request.session.raceStartTime;
+        
+        // difference between client and server race time reporting
+        const difference = Math.abs(serverTime - clientTime);
+        
+        // if the absolute difference is greater than 1s, fail
+        if(difference > 1000)
+        {
+            response.status(400)
+                .set("Content-Type", "application/json")
+                .send({
+                    result: "fail",
+                    message: "raceTime mismatch",
+                });
+            
+            return;
+        }
+
+        // TODO: update race table
+        console.log("ACTUALLY FINISHED A RACE!");
+
+        response.status(200)
+            .set("Content-Type", "application/json")
+            .send({
+                result: "ok",
+                message: "race updated"
+            });
+    });
 }
 
 
