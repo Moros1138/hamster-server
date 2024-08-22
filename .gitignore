@@ -2,3 +2,4 @@
 node_modules
 races.db
 sessions.db
+tests.db
