@@ -153,7 +153,7 @@ describe("ENDPOINT /session", () =>
                 });
         }); 
     }); // GET /session - with cookie set
-    
+
 }); // ENDPOINT /session
 
 describe("ENDPOINT /race - cookie not set", () =>
@@ -268,7 +268,6 @@ describe("ENDPOINT /race - cookie not set", () =>
     }); // DELETE /race
 
 }); // ENDPOINT /race - cookie not set
-
 
 describe("ENDPOINT /race - with cookie set", () =>
 {
