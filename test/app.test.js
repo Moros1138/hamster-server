@@ -73,7 +73,7 @@ describe("ENDPOINT /session", () =>
                     done(err);
                 });
         });
-    });
+    }); // GET /session
     
     describe("POST /session", () =>
     {
@@ -110,7 +110,7 @@ describe("ENDPOINT /session", () =>
                     done(err);
                 });
         });
-    });
+    }); // POST /session
     
     describe("GET /session - with cookie set", () =>
     {
@@ -151,9 +151,10 @@ describe("ENDPOINT /session", () =>
                 {
                     done(err);
                 });
-        });
-    });
-});
+        }); 
+    }); // GET /session - with cookie set
+    
+}); // ENDPOINT /session
 
 describe("ENDPOINT /race - cookie not set", () =>
 {
@@ -191,7 +192,7 @@ describe("ENDPOINT /race - cookie not set", () =>
                     done(err);
                 });
         });
-    });
+    }); // POST /race
     
 
     describe("PATCH /race", () =>
@@ -228,7 +229,7 @@ describe("ENDPOINT /race - cookie not set", () =>
                     done(err);
                 });
         });
-    });
+    }); // PATCH /race
     
     describe("DELETE /race", () =>
     {
@@ -264,8 +265,9 @@ describe("ENDPOINT /race - cookie not set", () =>
                     done(err);
                 });
         });
-    });
-});
+    }); // DELETE /race
+
+}); // ENDPOINT /race - cookie not set
 
 
 describe("ENDPOINT /race - with cookie set", () =>
@@ -311,7 +313,7 @@ describe("ENDPOINT /race - with cookie set", () =>
                     done(err);
                 });
         });
-    });
+    }); // POST /race
 
     describe("PATCH /race - missing parameters", () =>
     {
@@ -470,7 +472,7 @@ describe("ENDPOINT /race - with cookie set", () =>
                 });
         });
 
-    });
+    }); // DELETE /race - missing parameters
 
     describe("DELETE /race - with parameters", () =>
     {
@@ -521,7 +523,7 @@ describe("ENDPOINT /race - with cookie set", () =>
                     });
             });
         });
-    });
+    }); // DELETE /race - with parameters
 
 
 }); // ENDPOINT /race - with cookie set
