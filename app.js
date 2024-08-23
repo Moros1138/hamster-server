@@ -338,6 +338,9 @@ export default function defineApi(app, races)
                 .send({
                     result: "fail",
                     message: "raceTime mismatch",
+                    serverTime: serverTime,
+                    clientTime: clientTime,
+                    difference: difference
                 });
             
             return;
