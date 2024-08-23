@@ -330,6 +330,11 @@ export default function defineApi(app, races)
         // difference between client and server race time reporting
         const difference = Math.abs(serverTime - clientTime);
         
+        // one way or another, this race is over!
+        request.session.raceStartTime = -1;
+        request.session.raceEndTime = -1;
+        request.session.raceId = null;
+
         // if the absolute difference is greater than 1s, fail
         if(difference > 1000)
         {
