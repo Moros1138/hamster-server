@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard | Hamster</title>
+    <style>
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+}
+
+#map-leaderboard {
+    max-width: 40rem;
+    width: 100%;
+    margin: 0 auto
+}
+
+.leaderboard {
+    width: 100%;
+    margin: 1rem;
+}
+
+.leaderboard .title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.race-entries {
+    width: 100%;
+    display: table;
+    border-collapse: collapse;
+    padding: 0;
+}
+
+.race-entries thead {
+    text-align: left;
+    text-decoration: underline;
+}
+
+.race-entries tbody tr {
+    margin: .5rem 0;
+}
+    </style>
+</head>
+<body>
+    <h1>Leaderboard</h1>
+    <div id="map-leaderboard">
+    </div>
+    <script>
+        
+        function renderMap(title, results)
+        {
+            const elem_leaderboard = document.querySelector("#map-leaderboard");
+            const elem_container = document.createElement("div");
+            elem_container.classList.toggle("leaderboard", true);
+
+            elem_container.innerHTML = `
+            <div class="title">${title}</div>
+            <table class="race-entries">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Hamster Color</th>
+                        <th>Time (in Seconds)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            `;
+            
+            const elem_raceEntries = elem_container.querySelector(".race-entries");
+            
+            results.forEach((result) =>
+            {
+                let seconds = result.time / 1000;
+                
+                elem_raceEntries.innerHTML += `
+                    <tr>
+                        <td>${result.name}</td>
+                        <td>${result.color}</td>
+                        <td>${seconds.toFixed(3)}</td>
+                    </tr>`;
+            });
+            
+            elem_leaderboard.append(elem_container);
+        }
+        
+        for(let i = 1; i <= 5; i++)
+        {
+            
+            fetch(`/race?map=map${i}&sortBy=time&offset=0&limit=10&sort=ASC`)
+                .then((response) =>
+                {
+                    return response.json();
+                })
+                .then((response) =>
+                {
+                    renderMap(`Map ${i}`, response.results);
+                });
+        }
+        
+    </script>
+</body>
+</html>
