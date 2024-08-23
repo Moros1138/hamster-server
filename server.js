@@ -4,7 +4,10 @@ import defineApi from "./app.js";
 
 import express from 'express';
 import morgan from 'morgan';
+import { dirname,join } from "path";
+import { fileURLToPath } from 'url';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const port            = process.env.PORT || "8000";
 const publicDirectory = process.env.PUBLIC_DIRECTORY || "public";
 const sessionName     = process.env.SESSION_NAME   || "sessionid";
@@ -31,6 +34,11 @@ races.exec(`CREATE TABLE IF NOT EXISTS 'races' (
 )`);
 
 app.use(morgan("tiny"));
+
+app.get("/leaderboard.html", (request, response) =>
+{
+    response.sendFile(join(__dirname, "public", "leaderboard.html"));
+});
 
 app.use(express.static(publicDirectory));
 
