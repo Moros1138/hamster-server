@@ -260,7 +260,7 @@ export default function defineApi(app, races)
         }
         
         request.session.raceId = uuid4();
-        request.session.raceStartTime = new Date().getUTCMilliseconds();
+        request.session.raceStartTime = Date.now();
         request.session.raceEndTime = 0;
 
         response
@@ -322,7 +322,7 @@ export default function defineApi(app, races)
         const clientTime = parseInt(request.body.raceTime);
         
         // end time
-        request.session.raceEndTime = new Date().getUTCMilliseconds();
+        request.session.raceEndTime = Date.now();
         
         // race time calculated by the server 
         const serverTime = request.session.raceEndTime - request.session.raceStartTime;
