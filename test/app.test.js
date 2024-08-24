@@ -7,8 +7,8 @@ import request from "supertest";
 
 import Database from 'better-sqlite3';
 
-const sessionName     = process.env.SESSION_NAME   || "test_sessionid";
-const sessionSecret   = process.env.SESSION_SECRET || "$eCuRiTy";
+const sessionName     = "test_sessionid";
+const sessionSecret   = "totally-a-secret";
 
 const races = new Database(":memory:");
 
