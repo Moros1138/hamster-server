@@ -8,10 +8,10 @@ import { dirname,join } from "path";
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const port            = process.env.PORT || "8000";
+const port            = process.env.PORT || "3000";
 const publicDirectory = process.env.PUBLIC_DIRECTORY || "public";
 const sessionName     = process.env.SESSION_NAME   || "sessionid";
-const sessionSecret   = process.env.SESSION_SECRET || "$eCuRiTy";
+const sessionSecret   = process.env.SESSION_SECRET || "totally-a-secret";
 
 import Database from 'better-sqlite3';
 import session from 'express-session';
