@@ -888,3 +888,304 @@ describe("GET /race", () =>
         });
     });
 }); // GET /race
+
+
+describe("ENDPOINT /pause - cookie not set", () =>
+{
+    describe("POST /pause", () =>
+    {
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).post("/pause");
+            
+            test.expect("Content-Type", /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+        it("should respond with code 401", (done) =>
+        {
+            const test = request(app).post("/pause");
+            
+            test.expect(401)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
+        it("should respond with `unauthorized` in body", (done) =>
+        {
+            const test = request(app).post("/pause");
+            
+            test.expect(/unauthorized/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    });
+
+    describe("PATCH /pause", () =>
+    {
+        it("should respond with json", (done) =>
+        {
+            const test = request(app).patch("/pause");
+            
+            test.expect("Content-Type", /json/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    
+        it("should respond with code 401", (done) =>
+        {
+            const test = request(app).patch("/pause");
+            
+            test.expect(401)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+
+        it("should respond with `unauthorized` in body", (done) =>
+        {
+            const test = request(app).patch("/pause");
+            
+            test.expect(/unauthorized/)
+                .end((err, res) =>
+                {
+                    done(err);
+                });
+        });
+    });
+    
+});
+
+describe("ENDPOINT /pause - needs to test during a race!", () =>
+{
+
+    it("missing parameters - respond with code 400", function(done)
+    {
+        this.timeout(10000);
+        
+        const startRace = request(app).post("/race");
+        startRace.cookies = sessionCookie;
+        startRace.expect(/race started/)
+            .end((err, res) =>
+            {
+                const thisRaceId = res.body.raceId;
+                
+                setTimeout(() =>
+                {
+                    const test = request(app).post("/pause");
+                    test.cookies = sessionCookie;
+                    
+                    test.expect(400)
+                        .end((err, res) =>
+                        {
+                            done(err);
+                        });
+    
+                }, 2000);
+            });
+    });
+
+    it("with parameters - with non-existing raceID - respond with code 404", function(done)
+    {
+        this.timeout(10000);
+        
+        const startRace = request(app).post("/race");
+        startRace.cookies = sessionCookie;
+        startRace.expect(/race started/)
+            .end((err, res) =>
+            {
+                const thisRaceId = res.body.raceId;
+                
+                setTimeout(() =>
+                {
+                    const test = request(app).post("/pause");
+                    test.cookies = sessionCookie;
+                    
+                    test.send({ raceId: "does-not-exist" })
+                        .expect(404)
+                        .end((err, res) =>
+                        {
+                            done(err);
+                        });
+    
+                }, 2000);
+            });
+    });
+
+    it("with parameters - respond with code 200", function(done)
+    {
+        this.timeout(10000);
+        
+        const startRace = request(app).post("/race");
+        startRace.cookies = sessionCookie;
+        startRace.expect(/race started/)
+            .end((err, res) =>
+            {
+                if(err)
+                {
+                    done(err);
+                    return;
+                }
+                const thisRaceId = res.body.raceId;
+                
+                setTimeout(() =>
+                {
+                    const test = request(app).post("/pause");
+                    test.cookies = sessionCookie;
+                    
+                    test.send({ raceId: thisRaceId })
+                        .expect(200)
+                        .end((err, res) =>
+                        {
+                            done(err);
+                        });
+    
+                }, 2000);
+            });
+    });
+
+    it("with parameters - unpause with parameters - respond with code 200", function(done)
+    {
+        this.timeout(10000);
+        
+        const startRace = request(app).post("/race");
+        startRace.cookies = sessionCookie;
+        startRace.expect(/race started/)
+            .end((err, res) =>
+            {
+                if(err)
+                {
+                    done(err);
+                    return;
+                }
+
+                const thisRaceId = res.body.raceId;
+                
+                setTimeout(() =>
+                {
+                    const test = request(app).post("/pause");
+                    test.cookies = sessionCookie;
+                    
+                    test.send({ raceId: thisRaceId })
+                        .expect(200)
+                        .end((err, res) =>
+                        {
+                            if(err)
+                            {
+                                done(err);
+                                return;
+                            }
+                            
+                            setTimeout(() =>
+                            {
+                                const test = request(app).patch("/pause");
+                                test.cookies = sessionCookie;
+                                
+                                test.send({ raceId: thisRaceId })
+                                    .expect(200)
+                                    .end((err, res) =>
+                                    {
+                                        done(err);
+                                    });
+                
+                            }, 2000);
+                        });
+                }, 2000);
+            });
+    });
+
+
+    it("Full race!", function(done)
+    {
+        this.timeout(10000);
+        
+        let startTime = 0;
+        let endTime = 0;
+        let pauseStartTime = 0;
+        let pauseTotal = 0;
+
+        const startRace = request(app).post("/race");
+        startRace.cookies = sessionCookie;
+        startRace.expect(/race started/)
+            .end((err, res) =>
+            {
+                if(err)
+                {
+                    done(err);
+                    return;
+                }
+
+                const thisRaceId = res.body.raceId;
+                startTime = Date.now();
+                
+                setTimeout(() =>
+                {
+                    const test = request(app).post("/pause");
+                    test.cookies = sessionCookie;
+                    
+                    test.send({ raceId: thisRaceId })
+                        .expect(200)
+                        .end((err, res) =>
+                        {
+                            if(err)
+                            {
+                                done(err);
+                                return;
+                            }
+                            
+                            pauseStartTime = Date.now();
+
+                            setTimeout(() =>
+                            {
+                                const unpause = request(app).patch("/pause");
+                                unpause.cookies = sessionCookie;
+                                
+                                unpause.send({ raceId: thisRaceId })
+                                    .expect(200)
+                                    .end((err, res) =>
+                                    {
+                                        if(err)
+                                        {
+                                            done(err);
+                                            return;
+                                        }
+   
+                                        pauseTotal += (Date.now() - pauseStartTime);
+                                        console.log("PAUSE TOTAL: ", pauseTotal);
+                                        
+                                        setTimeout(() =>
+                                        {
+                                            const test = request(app).patch("/race");
+                                            test.cookies = sessionCookie;
+                                            endTime = Date.now();
+                                            const raceTotal = (endTime - startTime) - pauseTotal;
+                                            
+                                            console.log("RACE TIME:", raceTotal);
+
+                                            test.send({ raceId: thisRaceId, raceTime: raceTotal, raceMap: "the-map", raceColor: "white" })
+                                                .expect(/race update/)
+                                                .expect(200)
+                                                .end((err, res) =>
+                                                {
+                                                    done(err);
+                                                });                                            
+                                        }, 2000);
+                                    });
+                
+                            }, 2000);
+                        });
+                }, 2000);
+            });
+    });
+
+});

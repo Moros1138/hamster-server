@@ -263,6 +263,9 @@ export default function defineApi(app, races)
         request.session.raceStartTime = Date.now();
         request.session.raceEndTime = 0;
 
+        request.session.racePauseTimeStart = 0;
+        request.session.racePauseTimeTotal = 0;
+
         response
             .set("Content-Type", "application/json")
             .status(200)
@@ -272,6 +275,139 @@ export default function defineApi(app, races)
                 raceId: request.session.raceId,
             });
     });
+
+    app.post("/pause", (request, response) =>
+    {
+        if(!request.session.userId)
+        {
+            response.status(401)
+                .set("Content-Type", "application/json")
+                .send({
+                    result: 'fail',
+                    message: 'unauthorized'
+                });
+    
+            return;
+        }
+
+        let missingParameters = ExtractMissingParameters([
+            "raceId",
+        ], request);
+
+        if(missingParameters.length > 0)
+        {
+            response.status(400)
+                    .set("Content-Type", "application/json")
+                    .send({
+                        result: "fail",
+                        message: `required parameter (${missingParameters.join()}) missing`,
+                    });
+
+            return;
+        }
+        
+        if(request.session.raceId != request.body.raceId)
+        {
+            response.status(404)
+                    .set("Content-Type", "application/json")
+                    .send({
+                        result: "fail",
+                        message: "raceId not found"
+                    });
+            
+            return;
+        }
+        
+        if(request.session.racePauseTimeStart !== 0)
+        {
+            response.status(400)
+                    .set("Content-Type", "application/json")
+                    .send({
+                        result: "fail",
+                        message: "race already paused"
+                    });
+            
+            return;
+        }
+        
+        request.session.racePauseTimeStart = Date.now();
+
+        response.status(200)
+            .set("Content-Type", "application/json")
+            .send({
+                result: "ok",
+                message: "race paused"
+            });
+
+    });
+
+    app.patch("/pause", (request, response) =>
+        {
+            if(!request.session.userId)
+            {
+                response.status(401)
+                    .set("Content-Type", "application/json")
+                    .send({
+                        result: 'fail',
+                        message: 'unauthorized'
+                    });
+        
+                return;
+            }
+    
+            let missingParameters = ExtractMissingParameters([
+                "raceId",
+            ], request);
+    
+            if(missingParameters.length > 0)
+            {
+                response.status(400)
+                        .set("Content-Type", "application/json")
+                        .send({
+                            result: "fail",
+                            message: `required parameter (${missingParameters.join()}) missing`,
+                        });
+    
+                return;
+            }
+            
+            if(request.session.raceId != request.body.raceId)
+            {
+                response.status(404)
+                        .set("Content-Type", "application/json")
+                        .send({
+                            result: "fail",
+                            message: "raceId not found"
+                        });
+                
+                return;
+            }
+            
+            if(request.session.racePauseTimeStart === 0)
+            {
+                response.status(400)
+                        .set("Content-Type", "application/json")
+                        .send({
+                            result: "fail",
+                            message: "race not paused"
+                        });
+                
+                return;
+            }
+            
+            request.session.racePauseTimeTotal += (Date.now() - request.session.racePauseTimeStart);
+            request.session.racePauseTimeStart = 0;
+
+            response.status(200)
+                .set("Content-Type", "application/json")
+                .send({
+                    result: "ok",
+                    message: "race paused"
+                });
+    
+        });
+    
+
 
     app.patch("/race", (request, response) =>
     {
@@ -325,7 +461,7 @@ export default function defineApi(app, races)
         request.session.raceEndTime = Date.now();
         
         // race time calculated by the server 
-        const serverTime = request.session.raceEndTime - request.session.raceStartTime;
+        const serverTime = (request.session.raceEndTime - request.session.raceStartTime) - request.session.racePauseTimeTotal;
         
         // difference between client and server race time reporting
         const difference = Math.abs(serverTime - clientTime);
@@ -333,6 +469,9 @@ export default function defineApi(app, races)
         // one way or another, this race is over!
         request.session.raceStartTime = -1;
         request.session.raceEndTime = -1;
+        request.session.racePauseTimeStart = 0;
+        request.session.racePauseTimeTotal = 0;
+
         request.session.raceId = null;
 
         // if the absolute difference is greater than 1s, fail
