@@ -33,4 +33,4 @@ jobs:
  
     - name: Push Docker image
       run: |
-        docker buildx build --push --tag moros1138/hamster-server:latest .
+        docker buildx build --push --tag ${{ secrets.DOCKERHUB_USERNAME }}/hamster-server:latest .
