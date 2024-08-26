@@ -22,18 +22,32 @@ races.exec(`CREATE TABLE IF NOT EXISTS 'races' (
 const racesToInsert = [];
 const colors = ["white", "black", "blue", "green", "red", "yellow", "orange"];
 
-for(let j = 0; j < 5; j++)
+
+const maps = [
+    { id: "StageI.tmx", title: "I - Welcome to Hamster Planet!", },
+    { id: "StageII.tmx", title: "II - Splitting Hairs", },
+    { id: "StageIII.tmx", title: "III - The Stranger Lands", },
+    { id: "StageIV.tmx", title: "IV - Jet Jet Go!", },
+    { id: "StageV.tmx", title: "V - Run Run Run!", },
+    { id: "StageVI.tmx", title: "VI - A Twisty Maze", },
+    { id: "StageVII.tmx", title: "VII - Dunescape", },
+    { id: "StageVIII.tmx", title: "VIII - Swamps of Travesty", },
+    { id: "StageIX.tmx", title: "IX - Wide Chasm", },
+    { id: "StageX.tmx", title: "X - Hamster Island", },
+];
+
+maps.forEach((map) =>
 {
     for(let i = 0; i < 50; i++)
-    {
-        racesToInsert.push({
-            color: colors[Math.floor(Math.random() * colors.length)],
-            name: `Entry${Math.floor(Math.random() * (i * 50))}`,
-            map: `map${j + 1}`,
-            time: (Math.floor(Math.random() * (i * 50)))
-        });
-    }
-}
+        {
+            racesToInsert.push({
+                color: colors[Math.floor(Math.random() * colors.length)],
+                name: `Entry${Math.floor(Math.random() * (i * 50))}`,
+                map: map.id,
+                time: (Math.floor(Math.random() * (i * 50)))
+            });
+        }
+});
 
 racesToInsert.sort(() => Math.random() - 0.5);
 
