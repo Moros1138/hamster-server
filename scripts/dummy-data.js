@@ -2,12 +2,12 @@ import Database from 'better-sqlite3';
 
 import { rm } from "node:fs/promises";
 
-await rm("races.db", {
+await rm("../races.db", {
     force: true,
     recursive: true,
 });
 
-const races = new Database("races.db", { verbose: console.log });
+const races = new Database("../races.db", { verbose: console.log });
 
 
 races.exec(`CREATE TABLE IF NOT EXISTS 'races' (
