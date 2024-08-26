@@ -20,7 +20,16 @@ races.exec(`CREATE TABLE IF NOT EXISTS 'races' (
 )`);
 
 const racesToInsert = [];
-const colors = ["white", "black", "blue", "green", "red", "yellow", "orange"];
+const colors = [
+    "Yellow",
+    "Pink",
+    "Cyan",
+    "Black",
+    "Green",
+    "Purple",
+    "Red",
+    "Blue",    
+];
 
 
 const maps = [
