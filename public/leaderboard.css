@@ -1,0 +1,135 @@
+@import url('https://fonts.cdnfonts.com/css/press-start');
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    min-width: 640px;
+    margin: 0;
+    padding: 0;
+    font-family: "Press Start", monospace;
+    font-size: 12px;
+}
+
+body > video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
+
+.container {
+    display: flex;
+    width: 90%;
+    max-width: 80rem;
+    margin: 0 auto;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: rgba(0,0,0,0.7);
+    border-left: 1px solid #fff;
+    border-right: 1px solid #fff;
+    box-shadow: 0px 0px 20px #000;
+}
+
+header {
+    display: block;
+    width: 100%;
+    padding: 3rem;
+    color: #fff;
+    text-shadow: .2rem .2rem .2rem #000;
+    text-align: center;
+}
+
+header img {
+    display: block;
+    margin: 1rem auto;
+    width: 90%;
+    height: auto;
+}
+
+.map-title {
+    margin: 1rem 0;
+    padding: .8rem 1.6rem;
+    font-size: 1.4rem;
+    line-height: 3.5rem;
+    background-image: url(leaderboard/button2.png);
+    background-position: top left;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    color: #fff;
+    text-shadow: .2rem .2rem .2rem #000;
+}
+
+.map-title:hover {
+    background-image: url(leaderboard/highlight_button2.png);
+    background-position: top left;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+table.race-entries {
+    width: 100%;    
+    background-color: #333;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+table.race-entries thead {
+    background-color: #874c6a;
+    color: #ff0;
+    text-shadow: .2rem .2rem .2rem #000;
+}
+
+table.race-entries th.name {
+    text-align: left;
+    text-decoration: underline;
+    padding: 1rem 0rem 1rem 5rem;
+}
+
+table.race-entries th.time {
+    text-align: center;
+    text-decoration: underline;
+}
+
+table.race-entries tbody {
+    background-color: #e78161;
+    padding: 1rem;
+    color: #fff;
+    text-shadow: .2rem .2rem .2rem #000;
+}
+
+table.race-entries td.is-me {
+    background-color: #2a9f1a;
+}
+
+table.race-entries td.name {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    flex-direction: row;
+    column-gap: 1rem;
+    width: 100%;
+    padding: 1rem 0.8rem;
+}
+
+table.race-entries td.name img {
+    display: block;
+    width: auto;
+    height: 2rem;
+}
+
+table.race-entries td.time {
+    width: 10rem;
+    text-align: right;
+    padding-right: 0.8rem;
+}
+
+table.race-entries td.no-entries {
+    padding: 1rem 0.8rem;
+}
