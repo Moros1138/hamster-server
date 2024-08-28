@@ -1,34 +1,6 @@
-let playerName = "";
-
-const getPlayerName = () =>
-{
-    const DB_NAME = "hamster";
-    const DB_VERSION = 22;
-    const DB_STORE_NAME = "FILE_DATA";
-    
-    return new Promise((resolve, reject) =>
-    {
-        let request = indexedDB.open(DB_NAME, DB_VERSION);
-
-        request.onsuccess = function(event)
-        {
-            let db = event.target.result;
-            db
-                .transaction(DB_STORE_NAME)
-                .objectStore(DB_STORE_NAME)
-                .get("playerName").onsuccess = (event) =>
-                {
-                    let decoder = new TextDecoder('utf-8'); // Specify encoding if needed
-                    resolve(decoder.decode(event.target.result));
-                };
-        };
-        
-        request.onerror = function(event)
-        {
-            reject(event.target.errorCode);
-        };
-    });
-};
+const playerName = (window.localStorage.getItem("playerName") !== undefined)
+                ? window.localStorage.getItem("playerName")
+                : "";
 
 const route = (event) =>
 {
@@ -40,16 +12,16 @@ const route = (event) =>
 
 const routes = {
     "#!/": undefined,
-    "#!/map1":  { map: "StageI.tmx",    title: "I - Welcome to Hamster Planet!" },
-    "#!/map2":  { map: "StageII.tmx",   title: "II - Splitting Hairs" },
-    "#!/map3":  { map: "StageIII.tmx",  title: "III - The Stranger Lands" },
-    "#!/map4":  { map: "StageIV.tmx",   title: "IV - Jet Jet Go!" },
-    "#!/map5":  { map: "StageV.tmx",    title: "V - Run Run Run!" },
-    "#!/map6":  { map: "StageVI.tmx",   title: "VI - A Twisty Maze" },
-    "#!/map7":  { map: "StageVII.tmx",  title: "VII - Dunescape" },
-    "#!/map8":  { map: "StageVIII.tmx", title: "VIII - Swamps of Travesty" },
-    "#!/map9":  { map: "StageIX.tmx",   title: "IX - Wide Chasm" },
-    "#!/map10": { map: "StageX.tmx",    title: "X - Hamster Island" },
+    "#!/map1":  { map: "StageI.tmx",    title: "I. Welcome to Hamster Planet!" },
+    "#!/map2":  { map: "StageII.tmx",   title: "II. Splitting Hairs" },
+    "#!/map3":  { map: "StageIII.tmx",  title: "III. The Stranger Lands" },
+    "#!/map4":  { map: "StageIV.tmx",   title: "IV. Jet Jet Go!" },
+    "#!/map5":  { map: "StageV.tmx",    title: "V. Run Run Run!" },
+    "#!/map6":  { map: "StageVI.tmx",   title: "VI. A Twisty Maze" },
+    "#!/map7":  { map: "StageVII.tmx",  title: "VII. Dunescape" },
+    "#!/map8":  { map: "StageVIII.tmx", title: "VIII. Swamps of Travesty" },
+    "#!/map9":  { map: "StageIX.tmx",   title: "IX. Wide Chasm" },
+    "#!/map10": { map: "StageX.tmx",    title: "X. Hamster Island" },
 };
 
 const handleLocation = async() =>
@@ -117,15 +89,17 @@ const handleMap = async(route) =>
         json.results.forEach((result, index) =>
         {
             let seconds = result.time / 1000;
-            let isMyName = (result.name == this.playerName);
-    
+            const playerIsMe = (result.name == playerName)
+                             ? " is-me"
+                             : "";
+            
             elem_raceEntries.innerHTML += `<tr>
-                                                <td class="placement ${(isMyName ? 'is-me' : '')}">${index + 1}.</td>
-                                                <td class="name ${(isMyName ? 'is-me' : '')}">
+                                                <td class="placement${playerIsMe}">${index + 1}.</td>
+                                                <td class="name${playerIsMe}">
                                                     <img src="leaderboard/Hamster-${result.color}.png" alt="${result.color} Hamster">
                                                     <span>${result.name}</span>
                                                 </td>
-                                                <td class="time ${(isMyName ? 'is-me' : '')}">
+                                                <td class="time${playerIsMe}">
                                                     ${seconds.toFixed(3)}
                                                 </td>
                                             </tr>`;
@@ -143,12 +117,6 @@ const handleMap = async(route) =>
 window.onpopstate = handleLocation;
 window.route = route;
 
-getPlayerName()
-    .then((result) =>
-    {
-        playerName = result;
-        handleLocation();
-    })
-    .catch((err) => console.log(err));
+handleLocation();
 
 
