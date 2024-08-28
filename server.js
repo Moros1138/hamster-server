@@ -40,7 +40,10 @@ app.get("/leaderboard.html", (request, response) =>
     response.sendFile(join(__dirname, "public", "leaderboard.html"));
 });
 
-app.use(express.static(publicDirectory));
+app.use(express.static("public"));
+
+if(publicDirectory !== "public")
+    app.use(express.static(publicDirectory));
 
 app.use(express.json());
 
