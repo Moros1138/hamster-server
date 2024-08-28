@@ -16,6 +16,7 @@ html,
 body {
     height: 100%;
     width: 100%;
+    min-width: 360px;
     margin: 0;
     padding: 0;
     font-family: "Press Start", monospace;
@@ -120,6 +121,7 @@ table.race-entries {
     background-color: rgba(0,0,0,0);
     border-collapse: collapse;
     margin-bottom: 1rem;
+    overflow: auto;
 }
 
 table.race-entries thead {
@@ -175,6 +177,38 @@ table.race-entries td.name img {
     height: 2rem;
 }
 
+table.race-entries td.name span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 406px) {
+    table.race-entries td.name span {
+        max-width: 10rem;
+    }
+}
+
+@media (min-width: 407px) and (max-width: 506px) {
+    table.race-entries td.name span {
+        max-width: clamp(12rem, 40vw, 32rem);
+    }
+}
+
+@media (min-width: 507px) and (max-width: 667px) {
+    table.race-entries td.name span {
+        max-width: clamp(12rem, 50vw, 32rem);
+    }
+}
+
+@media (min-width: 668px) {
+    table.race-entries td.name span {
+        max-width: 32rem;
+    }
+}
+
+
+
 table.race-entries td.time {
     width: 10rem;
     text-align: right;
@@ -184,3 +218,4 @@ table.race-entries td.time {
 table.race-entries td.no-entries {
     padding: 1rem 0.8rem;
 }
+
