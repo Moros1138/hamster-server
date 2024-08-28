@@ -36,7 +36,6 @@ const handleLocation = async() =>
     }
     
     handleMap(route);
-
 };
 
 const handleHome = () =>
@@ -127,7 +126,7 @@ const handleMap = async(route) =>
                                                 <td class="placement${playerIsMe}">${index + 1}.</td>
                                                 <td class="name${playerIsMe}">
                                                     <img src="leaderboard/Hamster-${result.color}.png" alt="${result.color} Hamster">
-                                                    <span>${result.name}</span>
+                                                    <span title="${result.name}">${result.name}</span>
                                                 </td>
                                                 <td class="time${playerIsMe}">
                                                     ${time}
