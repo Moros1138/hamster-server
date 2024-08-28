@@ -1,10 +1,22 @@
 @import url('https://fonts.cdnfonts.com/css/press-start');
 
+/* Preload Images */
+body::after{
+    position:absolute;
+    width:0;
+    height:0;
+    overflow:hidden;
+    z-index:-1;
+    content: url(leaderboard/button.png) url(leaderboard/highlight_button.png) url(leaderboard/button2.png) url(leaderboard/highlight_button2.png);
+}
+
+
+
 html,
 body {
     height: 100%;
     width: 100%;
-    min-width: 640px;
+    /* min-width: 640px; */
     margin: 0;
     padding: 0;
     font-family: "Press Start", monospace;
@@ -53,7 +65,35 @@ header img {
     height: auto;
 }
 
-.map-title {
+main {
+    width: 100%;
+    max-width: 50rem;
+}
+
+a.back-link:active,
+a.back-link:link,
+a.back-link:visited {
+    display: inline-block;
+    color:#fff;
+    text-shadow: .2rem .2rem .2rem #000;
+    text-decoration: none;
+    margin: 1rem 0;
+    padding: 2rem;
+    background-image: url(leaderboard/button.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+a.back-link:hover {
+    text-decoration: underline;
+    background-image: url(leaderboard/highlight_button.png);
+}
+
+.map-title,
+a.map-title:active,
+a.map-title:link,
+a.map-title:visited {
+    display: block;
     margin: 1rem 0;
     padding: .8rem 1.6rem;
     font-size: 1.4rem;
@@ -64,13 +104,15 @@ header img {
     background-repeat: no-repeat;
     color: #fff;
     text-shadow: .2rem .2rem .2rem #000;
+    text-decoration: none;
 }
 
-.map-title:hover {
+a.map-title:hover {
     background-image: url(leaderboard/highlight_button2.png);
     background-position: top left;
     background-size: 100% 100%;
     background-repeat: no-repeat;
+    cursor: pointer;
 }
 
 table.race-entries {
@@ -86,10 +128,14 @@ table.race-entries thead {
     text-shadow: .2rem .2rem .2rem #000;
 }
 
+table.race-entries th.placement {
+    width: 3rem;
+}
+
 table.race-entries th.name {
     text-align: left;
     text-decoration: underline;
-    padding: 1rem 0rem 1rem 5rem;
+    padding: 1rem 0rem 1rem 4rem;
 }
 
 table.race-entries th.time {
@@ -108,6 +154,11 @@ table.race-entries td.is-me {
     background-color: #2a9f1a;
 }
 
+table.race-entries td.placement {
+    width: 3rem;
+    text-align: right;
+}
+
 table.race-entries td.name {
     display: flex;
     align-items: center;
@@ -115,7 +166,7 @@ table.race-entries td.name {
     flex-direction: row;
     column-gap: 1rem;
     width: 100%;
-    padding: 1rem 0.8rem;
+    padding: 1rem 0rem;
 }
 
 table.race-entries td.name img {

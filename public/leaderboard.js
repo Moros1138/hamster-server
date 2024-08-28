@@ -1,14 +1,13 @@
-const DB_NAME = "hamster";
-const DB_VERSION = 22;
-const DB_STORE_NAME = "FILE_DATA";
+let playerName = "";
 
-let playerName;
-
-function GetPlayerName()
+const getPlayerName = () =>
 {
+    const DB_NAME = "hamster";
+    const DB_VERSION = 22;
+    const DB_STORE_NAME = "FILE_DATA";
+    
     return new Promise((resolve, reject) =>
     {
-        console.log("OpenDatabase ...");
         let request = indexedDB.open(DB_NAME, DB_VERSION);
 
         request.onsuccess = function(event)
@@ -22,8 +21,6 @@ function GetPlayerName()
                     let decoder = new TextDecoder('utf-8'); // Specify encoding if needed
                     resolve(decoder.decode(event.target.result));
                 };
-    
-            console.log("OpenDatabase DONE");
         };
         
         request.onerror = function(event)
@@ -31,41 +28,107 @@ function GetPlayerName()
             reject(event.target.errorCode);
         };
     });
-}
+};
 
-function renderMap(title, results)
+const route = (event) =>
 {
-    const elem_leaderboard = document.querySelector("#leaderboard-container");
-    const elem_container = document.createElement("div");
-    elem_container.classList.toggle("leaderboard", true);
+    event = event || window.event;
+    event.preventDefault();
+    window.history.pushState({}, "", event.target.href);
+    handleLocation();
+};
 
-    elem_container.innerHTML = `
-    <div class="map-title">${title}</div>
-    <table class="race-entries">
-        <thead>
-            <tr>
-                <th class="name">Name</th>
-                <th class="time">Time</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-    `;
+const routes = {
+    "#!/": undefined,
+    "#!/map1":  { map: "StageI.tmx",    title: "I - Welcome to Hamster Planet!" },
+    "#!/map2":  { map: "StageII.tmx",   title: "II - Splitting Hairs" },
+    "#!/map3":  { map: "StageIII.tmx",  title: "III - The Stranger Lands" },
+    "#!/map4":  { map: "StageIV.tmx",   title: "IV - Jet Jet Go!" },
+    "#!/map5":  { map: "StageV.tmx",    title: "V - Run Run Run!" },
+    "#!/map6":  { map: "StageVI.tmx",   title: "VI - A Twisty Maze" },
+    "#!/map7":  { map: "StageVII.tmx",  title: "VII - Dunescape" },
+    "#!/map8":  { map: "StageVIII.tmx", title: "VIII - Swamps of Travesty" },
+    "#!/map9":  { map: "StageIX.tmx",   title: "IX - Wide Chasm" },
+    "#!/map10": { map: "StageX.tmx",    title: "X - Hamster Island" },
+};
+
+const handleLocation = async() =>
+{
+    const path = window.location.hash;
+    const route = routes[path] || routes["#!/"];
     
-    const elem_raceEntries = elem_container.querySelector(".race-entries tbody");
-    
-    if(results.length > 0)
+    if(route === undefined)
     {
-        results.forEach((result) =>
+        handleHome();
+        return;
+    }
+    
+    handleMap(route);
+
+};
+
+const handleHome = () =>
+{
+    const elem_container = document.querySelector("main");
+    elem_container.innerHTML = "";
+
+    let keys = Object.keys(routes);
+
+    keys.forEach((route, index) =>
+    {
+        if(index == 0)
+            return;
+
+        elem_container.innerHTML += `<a href="${route}" class="map-title">${routes[route].title}</div>`;
+    });
+
+    elem_container.querySelectorAll(".map-title").forEach((item) =>
+    {
+        item.addEventListener("click", route);
+    });
+};
+
+const handleMap = async(route) =>
+{
+    const json = await fetch(`/race?map=${route.map}&sortBy=time&offset=0&limit=100&sort=ASC`).then(response => response.json());
+
+    if(json.results === undefined)
+        return;
+        
+    const elem_container = document.querySelector("main");
+    elem_container.innerHTML = `
+<a class="back-link" href="#!/" onclick="route()">Back to Map List</a>
+<div class="map-title">${route.title}</div>
+<table class="race-entries">
+    <thead>
+        <tr>
+            <th class="placement">#</th>
+            <th class="name">Name</th>
+            <th class="time">Time</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<a class="back-link" href="#!/" onclick="route()">Back to Map List</a>`;
+    const elem_raceEntries = elem_container.querySelector(".race-entries tbody");
+        
+    if(json.results.length > 0)
+    {
+        json.results.forEach((result, index) =>
         {
             let seconds = result.time / 1000;
-            let isMyName = (result.name == playerName);
+            let isMyName = (result.name == this.playerName);
     
-            elem_raceEntries.innerHTML += `
-                <tr>
-                    <td class="name ${(isMyName ? 'is-me' : '')}"><img src="leaderboard/Hamster-${result.color}.png" alt="${result.color} Hamster"> <span>${result.name}</span></td>
-                    <td class="time ${(isMyName ? 'is-me' : '')}">${seconds.toFixed(3)}</td>
-                </tr>`;
+            elem_raceEntries.innerHTML += `<tr>
+                                                <td class="placement ${(isMyName ? 'is-me' : '')}">${index + 1}.</td>
+                                                <td class="name ${(isMyName ? 'is-me' : '')}">
+                                                    <img src="leaderboard/Hamster-${result.color}.png" alt="${result.color} Hamster">
+                                                    <span>${result.name}</span>
+                                                </td>
+                                                <td class="time ${(isMyName ? 'is-me' : '')}">
+                                                    ${seconds.toFixed(3)}
+                                                </td>
+                                            </tr>`;
         });
     }
     else
@@ -75,48 +138,17 @@ function renderMap(title, results)
             <td class="no-entries" colspan="2">No Entries for this Map</td>
         </tr>`;
     }
-    
-    elem_leaderboard.append(elem_container);
-}
+};
 
+window.onpopstate = handleLocation;
+window.route = route;
 
-
-const maps = new Map();
-
-maps.set("StageI.tmx",   "I - Welcome to Hamster Planet!");
-maps.set("StageII.tmx",  "II - Splitting Hairs");
-maps.set("StageIII.tmx", "III - The Stranger Lands");
-maps.set("StageIV.tmx",  "IV - Jet Jet Go!");
-maps.set("StageV.tmx",   "V - Run Run Run!");
-maps.set("StageVI.tmx",  "VI - A Twisty Maze");
-maps.set("StageVII.tmx", "VII - Dunescape");
-maps.set("StageVIII.tmx","VIII - Swamps of Travesty");
-maps.set("StageIX.tmx",  "IX - Wide Chasm");
-maps.set("StageX.tmx",   "X - Hamster Island");
-
-async function fetchInOrder() {
-    
-    playerName = await GetPlayerName();
-    
-    // Use map to create an array of fetch promises
-    const fetchPromises = Array.from(maps).map(([key, value]) => fetch(`/race?map=${key}&sortBy=time&offset=0&limit=10&sort=ASC`).then(response => response.json()).then((json) =>
+getPlayerName()
+    .then((result) =>
     {
-        return {
-            title: value,
-            results: json.results,
-        }
-    }));
+        playerName = result;
+        handleLocation();
+    })
+    .catch((err) => console.log(err));
 
-    // Wait for all promises to resolve and return results in order
-    const results = await Promise.all(fetchPromises);
 
-    return results;
-}
-
-fetchInOrder().then((results) =>
-{
-    results.forEach((map) =>
-    {
-        renderMap(map.title, map.results);
-    });
-});
