@@ -88,7 +88,37 @@ const handleMap = async(route) =>
     {
         json.results.forEach((result, index) =>
         {
-            let seconds = result.time / 1000;
+            const millis = result.time % 1000;
+            const seconds = Math.floor(result.time / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours   = Math.floor(seconds / 3600);
+
+            let time = "";
+
+            if(hours > 0)
+            {
+                if(hours < 10) time += "0";
+                time += hours.toString() + ":";
+            }
+            
+            if(minutes > 0)
+            {
+                if((minutes % 60) < 10) time += "0";
+                time += (minutes % 60).toString() + ":";
+            }
+            else
+            {
+                time += "00:";
+            }
+            
+            
+            if((seconds % 60) < 10) time += "0";
+            time += (seconds % 60).toString() + ".";
+        
+            if(millis < 100) time += "0";
+            if(millis <  10) time += "0";
+            time += millis.toString();
+
             const playerIsMe = (result.name == playerName)
                              ? " is-me"
                              : "";
@@ -100,7 +130,7 @@ const handleMap = async(route) =>
                                                     <span>${result.name}</span>
                                                 </td>
                                                 <td class="time${playerIsMe}">
-                                                    ${seconds.toFixed(3)}
+                                                    ${time}
                                                 </td>
                                             </tr>`;
         });
