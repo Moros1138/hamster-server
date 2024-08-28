@@ -97,7 +97,7 @@ const handleMap = async(route) =>
         
     const elem_container = document.querySelector("main");
     elem_container.innerHTML = `
-<a class="back-link" href="#!/" onclick="route()">Back to Map List</a>
+<a class="back-link" href="/leaderboard.html" onclick="route()">Back to Map List</a>
 <div class="map-title">${route.title}</div>
 <table class="race-entries">
     <thead>
@@ -109,7 +109,7 @@ const handleMap = async(route) =>
     </thead>
     <tbody></tbody>
 </table>
-<a class="back-link" href="#!/" onclick="route()">Back to Map List</a>`;
+<a class="back-link" href="/leaderboard.html" onclick="route()">Back to Map List</a>`;
     const elem_raceEntries = elem_container.querySelector(".race-entries tbody");
         
     if(json.results.length > 0)
