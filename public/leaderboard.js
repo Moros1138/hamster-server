@@ -26,6 +26,14 @@ const routes = {
 
 const handleLocation = async() =>
 {
+    setTimeout(() =>
+    {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }, 50);
+    
     const path = window.location.hash;
     const route = routes[path] || routes["#!/"];
     
